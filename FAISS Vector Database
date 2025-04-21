@@ -1,0 +1,31 @@
+import faiss
+import pickle
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+
+# Sample Affirmations
+affirmations = [
+    "I am attracting abundance effortlessly.",
+    "Success flows to me in every area of life.",
+    "I am confident and capable of achieving my dreams.",
+    "Opportunities are always coming my way.",
+    "Every day, I become stronger and more successful."
+]
+
+# Convert Text to Vectors
+embedding_model = OpenAIEmbeddings()
+embeddings = [embedding_model.embed_query(text) for text in affirmations]
+
+# Create FAISS Index
+dimension = len(embeddings[0])
+index = faiss.IndexFlatL2(dimension)
+index.add(embeddings)
+
+# Store text along with index
+vector_db = FAISS(index, affirmations)
+
+# Save to File
+with open("affirmation_index", "wb") as f:
+    pickle.dump(vector_db, f)
+
+print("Affirmation database created!")

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Affirmation & Visualization Coach</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">🌟 AI Affirmation & Visualization Coach</h1>
+        
+        <p class="text-gray-600 mb-6">Enter your goal, and let AI generate a powerful affirmation & visualization for subconscious programming.</p>
+
+        <form id="affirmationForm" class="space-y-4">
+            <input type="text" id="goal" placeholder="Enter your goal (e.g., Confidence, Wealth)" 
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300" required>
+            <button type="submit" 
+                    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                Generate Visualization ✨
+            </button>
+        </form>
+        
+        <div id="result" class="mt-6 hidden">
+            <h2 class="text-xl font-semibold text-gray-700 mt-6">Your Affirmation Audio:</h2>
+            <p id="affirmationText" class="text-lg text-gray-600 mt-2"></p>
+            
+            <h2 class="text-xl font-semibold text-gray-700 mt-6">Your Visualization:</h2>
+            <img id="visualizationImage" src="" alt="Generated Image" class="mt-4 rounded-lg shadow-lg hidden">
+
+            <h2 class="text-xl font-semibold text-gray-700 mt-6">Your Affirmation Audio:</h2>
+            <audio id="affirmationAudio" controls class="mt-4 w-full hidden"></audio>
+
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("affirmationForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            let goal = document.getElementById("goal").value;
+            let button = event.target.querySelector("button");
+            button.innerText = "Generating... ⏳";
+            button.disabled = true;
+
+            try {
+                let response = await fetch("/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ goal: goal })
+                });
+
+                let data = await response.json();
+                
+                document.getElementById("affirmationText").innerText = data.affirmation;
+                document.getElementById("visualizationImage").src = data.image_url;
+                document.getElementById("visualizationImage").classList.remove("hidden");
+
+                if (data.audio_url) {
+                    document.getElementById("affirmationAudio").src = data.audio_url;
+                    document.getElementById("affirmationAudio").classList.remove("hidden");
+                }
+
+                document.getElementById("result").classList.remove("hidden");
+            } catch (error) {
+                alert("Error generating affirmation. Please try again.");
+            }
+
+            button.innerText = "Generate Visualization ✨";
+            button.disabled = false;
+        });
+    </script>
+</body>
+</html>
